@@ -42,7 +42,7 @@ class AuthController extends Controller
             ->setStatusCode(201);
     }
 
-    public function logout(Request $request): JsonResponse
+    public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
 
