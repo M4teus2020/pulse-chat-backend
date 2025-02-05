@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\UpdatePasswordRequest;
+use App\Http\Requests\AccountActionRequest;
 use App\Http\Resources\AuthResource;
 use App\Http\Resources\UserResource;
 use App\Models\User;
@@ -19,13 +20,26 @@ class AuthController extends Controller
     {
         $credentials = $request->validated();
 
+        $user = User::withTrashed()->where('email', $credentials['email'])->first();
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'Invalid credentials'
+            ], 401);
+        }
+
+        if (!$user->is_active && !$user->trashed()) {
+            return response()->json([
+                'message' => 'Account is disabled. Please contact support.'
+            ], 403);
+        }
+
         if (!Auth::attempt($credentials)) {
             return response()->json([
                 'message' => 'Invalid credentials'
             ], 401);
         }
 
-        $user = $request->user();
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return (new AuthResource($user, $token))
@@ -67,6 +81,33 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Password updated successfully'
+        ], 200);
+    }
+
+    public function disableAccount(AccountActionRequest $request): JsonResponse
+    {
+        $user = Auth::user();
+
+        $user->is_active = false;
+        $user->save();
+
+        $user->tokens()->delete();
+
+        return response()->json([
+            'message' => 'Account deactivated successfully'
+        ], 200);
+    }
+
+    public function deleteAccount(AccountActionRequest $request): JsonResponse
+    {
+        $user = Auth::user();
+
+        $user->tokens()->delete();
+
+        $user->delete();
+
+        return response()->json([
+            'message' => 'Account deleted successfully'
         ], 200);
     }
 }
