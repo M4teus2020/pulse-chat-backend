@@ -6,6 +6,7 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\UpdatePasswordRequest;
 use App\Http\Requests\AccountActionRequest;
+use App\Http\Requests\UpdateUsernameRequest;
 use App\Http\Resources\AuthResource;
 use App\Http\Resources\UserResource;
 use App\Models\User;
@@ -109,5 +110,16 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Account deleted successfully'
         ], 200);
+    }
+
+    public function updateUsername(UpdateUsernameRequest $request): JsonResponse
+    {
+        $user = Auth::user();
+        $user->username = $request->input('username');
+        $user->save();
+
+        return (new UserResource($request->user()))
+            ->response()
+            ->setStatusCode(200);
     }
 }
