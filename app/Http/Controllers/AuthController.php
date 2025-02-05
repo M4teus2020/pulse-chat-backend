@@ -7,6 +7,7 @@ use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\UpdatePasswordRequest;
 use App\Http\Requests\AccountActionRequest;
 use App\Http\Requests\UpdateUsernameRequest;
+use App\Http\Requests\UpdateNameRequest;
 use App\Http\Resources\AuthResource;
 use App\Http\Resources\UserResource;
 use App\Models\User;
@@ -116,6 +117,17 @@ class AuthController extends Controller
     {
         $user = Auth::user();
         $user->username = $request->input('username');
+        $user->save();
+
+        return (new UserResource($request->user()))
+            ->response()
+            ->setStatusCode(200);
+    }
+
+    public function updateName(UpdateNameRequest $request): JsonResponse
+    {
+        $user = Auth::user();
+        $user->name = $request->input('name');
         $user->save();
 
         return (new UserResource($request->user()))

@@ -13,4 +13,5 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('/update-username', [AuthController::class, 'updateUsername']);
     Route::post('/disable-account', [AuthController::class, 'disableAccount']);
     Route::delete('/delete-account', [AuthController::class, 'deleteAccount']);
+    Route::post('/update-name', [AuthController::class, 'updateName']);
 });
