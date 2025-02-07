@@ -22,6 +22,8 @@ class UpdateUsernameRequest extends FormRequest
      */
     public function rules(): array
     {
+        $user = auth()->user();
+
         return [
             'username' => [
                 'required',
@@ -31,7 +33,11 @@ class UpdateUsernameRequest extends FormRequest
                 'alpha_dash',
                 Rule::unique('users')->ignore(auth()->id())
             ],
-            'password' => ['required', 'current_password']
+            'password' => [
+                Rule::excludeIf($this->input('username') === $user->username),
+                'required',
+                'current_password'
+            ]
         ];
     }
 
