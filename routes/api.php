@@ -21,4 +21,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post('/disable', [ProfileController::class, 'disableAccount']);
         Route::delete('/delete', [ProfileController::class, 'deleteAccount']);
     });
+
+    Route::post('/email/send-verification', [VerifyEmailController::class, 'sendVerificationEmail'])->middleware(['auth:sanctum']);
 });

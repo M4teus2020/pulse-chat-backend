@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\EmailVerificationRequest;
+use Illuminate\Http\Request;
 
 class VerifyEmailController extends Controller
 {
@@ -14,5 +15,19 @@ class VerifyEmailController extends Controller
         $request->fulfill();
 
         return redirect()->intended(config('app.frontend_url'));
+    }
+
+    /**
+     * Send verification email to the authenticated user.
+     */
+    public function sendVerificationEmail(Request $request)
+    {
+        if ($request->user()->hasVerifiedEmail()) {
+            return response()->json(['message' => 'Email already verified'], 400);
+        }
+
+        $request->user()->sendEmailVerificationNotification();
+
+        return response()->json(['message' => 'Verification email sent successfully']);
     }
 }
