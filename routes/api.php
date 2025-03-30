@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VerifyEmailController;
+use App\Http\Controllers\EmailChangeController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -10,7 +11,7 @@ Route::post('/register', [AuthController::class, 'register']);
 
 Route::get('/email/verify/{id}/{hash}', VerifyEmailController::class)->middleware(['signed'])->name('verification.verify');
 
-Route::group(['middleware' => 'auth:sanctum'], function () {
+Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
 
@@ -22,5 +23,9 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::delete('/delete', [ProfileController::class, 'deleteAccount']);
     });
 
-    Route::post('/email/send-verification', [VerifyEmailController::class, 'sendVerificationEmail'])->middleware(['auth:sanctum']);
+    Route::prefix('email')->group(function () {
+        Route::post('/send-verification', [VerifyEmailController::class, 'sendVerificationEmail']);
+        Route::post('/request-change-code', [EmailChangeController::class, 'requestVerificationCode']);
+        Route::post('/change', [EmailChangeController::class, 'updateEmail']);
+    });
 });
